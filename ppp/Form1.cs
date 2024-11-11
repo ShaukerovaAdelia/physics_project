@@ -25,10 +25,11 @@ namespace ppp
         }
         private void SetupCharts()
         {
-            SetupChart(chart2, "Давление от Объёма", "Объем", "Давление");
-            SetupChart(chart3, "Давление от Температуры", "Температура", "Давление");
-            SetupChart(chart4, "Объем от Температуры", "Температура", "Объем");
+            SetupChart(chart2, "Давление от Объёма", "V", "P");
+            SetupChart(chart3, "Давление от Температуры", "T", "P");
+            SetupChart(chart4, "Объем от Температуры", "T", "V");
         }
+
 
         private void SetupChart(Chart chart, string title, string xTitle, string yTitle)
         {
@@ -39,8 +40,13 @@ namespace ppp
             chart.Series["Series1"].ChartType = SeriesChartType.Line;
             chart.ChartAreas[0].AxisX.Title = xTitle;
             chart.ChartAreas[0].AxisY.Title = yTitle;
+            chart.Series["Series1"].IsVisibleInLegend = false;
+            chart.MinimumSize = new System.Drawing.Size(300, 550);
+            chart.Palette = ChartColorPalette.Berry;
+            chart.BorderlineWidth = 100;
             chart.Series["Series1"].Points.Clear();
         }
+
 
         private string DetermineProcessType(double p1, double p2, double v1, double v2, double t1, double t2)
         {
@@ -65,47 +71,47 @@ namespace ppp
             switch (processType)
             {
                 case "Изохорный":
-                    DrawIsochoricProcess(p1, t1, t2);
+                    DrawIsochoricProcess(p1, t1, t2, v1);
                     break;
                 case "Изобарный":
-                    DrawIsobaricProcess(v1, t1, t2);
+                    DrawIsobaricProcess(v1, t1, t2, p1);
                     break;
                 case "Изотермический":
-                    DrawIsothermalProcess(p1, v1);
+                    DrawIsothermalProcess(p1, v1, t1);
                     break;
             }
         }
 
-        private void DrawIsochoricProcess(double pressure, double t1, double t2)
+        private void DrawIsochoricProcess(double pressure, double t1, double t2, double volume)
         {
             for (double T = t1; T <= t2; T += 1)
             {
                 double P = pressure * (T / t1); // Уравнение состояния для изохорного процесса
-                chart2.Series["Series1"].Points.AddXY(1, P);
+                chart2.Series["Series1"].Points.AddXY(volume, P);
                 chart3.Series["Series1"].Points.AddXY(T, P);
-                chart4.Series["Series1"].Points.AddXY(T, 1); // Объем постоянный
+                chart4.Series["Series1"].Points.AddXY(T, volume); // Объем постоянный
             }
         }
 
-        private void DrawIsobaricProcess(double volume, double t1, double t2)
+        private void DrawIsobaricProcess(double volume, double t1, double t2, double pressure)
         {
             for (double T = t1; T <= t2; T += 1)
             {
                 double V = volume * (T / t1); // Уравнение состояния для изобарного процесса
-                chart2.Series["Series1"].Points.AddXY(V, 1);
-                chart3.Series["Series1"].Points.AddXY(T, 1);
+                chart2.Series["Series1"].Points.AddXY(V, pressure);
+                chart3.Series["Series1"].Points.AddXY(T, pressure);
                 chart4.Series["Series1"].Points.AddXY(T, V); // Давление постоянное
             }
         }
 
-        private void DrawIsothermalProcess(double pressure, double volume)
+        private void DrawIsothermalProcess(double pressure, double volume, double temperature)
         {
             for (double V = 0.1; V <= volume; V += 0.1)
             {
                 double P = (pressure * volume) / V; // Уравнение состояния для изотермического процесса
                 chart2.Series["Series1"].Points.AddXY(V, P);
-                chart3.Series["Series1"].Points.AddXY(1, P);
-                chart4.Series["Series1"].Points.AddXY(1, V); // Температура постоянная
+                chart3.Series["Series1"].Points.AddXY(temperature, P);
+                chart4.Series["Series1"].Points.AddXY(temperature, V); // Температура постоянная
             }
         }
 
