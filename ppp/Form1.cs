@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+//using ZedGraph;
+
 
 namespace ppp
 {
@@ -42,7 +44,7 @@ namespace ppp
             chart.ChartAreas[0].AxisY.Title = yTitle;
             chart.Series["Series1"].IsVisibleInLegend = false;
             chart.MinimumSize = new System.Drawing.Size(300, 550);
-            chart.Palette = ChartColorPalette.Berry;
+            chart.Series["Series1"].Color = System.Drawing.Color.Blue;
             chart.BorderlineWidth = 100;
             chart.Series["Series1"].Points.Clear();
         }
@@ -129,6 +131,68 @@ namespace ppp
 
             ClearCharts();
             BuildGraphs(processType, initialPressure, finalPressure, initialVolume, finalVolume, initialTemperature, finalTemperature);
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox21_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonGenerateGraph_Click(object sender, EventArgs e)
+        {
+            double p1, p2, v1, v2, gamma;
+
+            // Ввод значений
+            if (double.TryParse(txtP1.Text, out p1) &&
+                double.TryParse(txtP2.Text, out p2) &&
+                double.TryParse(txtV1.Text, out v1) &&
+                double.TryParse(txtV2.Text, out v2) &&
+                double.TryParse(txtGamma.Text, out gamma))
+            {
+                PlotAdiabaticProcess(p1, v1, p2, v2, gamma);
+            }
+            else
+            {
+                MessageBox.Show("Пожалуйста, введите корректные числовые значения.");
+            }
+        }
+
+        private void PlotAdiabaticProcess(double p1, double v1, double p2, double v2, double gamma)
+        {
+            chartA.Series.Clear();
+
+            var series = new Series
+            {
+                Name = "Адиабатический процесс",
+                Color = System.Drawing.Color.Blue,
+                ChartType = SeriesChartType.Line,
+                IsVisibleInLegend = false
+            };
+
+            // Вычисление точек для графика
+            for (double v = v1; v <= v2; v += 0.1)
+            {
+                double p = p1 * Math.Pow((v1 / v), gamma);
+                series.Points.AddXY(v, p);
+            }
+
+            chartA.Series.Add(series);
+            chartA.ChartAreas[0].RecalculateAxesScale();
+        }
+
+        private void groupBox6_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void groupBox7_Enter(object sender, EventArgs e)
+        {
+
         }
     }
 }
